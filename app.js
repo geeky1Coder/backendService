@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const http = require('http');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 const { appendToFile } = require('./utils/fileHandler');
 
 const app = express();
@@ -28,6 +30,24 @@ app.post('/data', (req, res) => {
             console.error('Error appending data:', error);
             res.status(500).send('Error appending data: ' + error.message);
         });
+});
+
+// GET request to retrieve the latest content of the data file
+app.get('/latest-data', (req, res) => {
+    const filePath = path.join(__dirname, 'utils', 'data.txt');
+
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file:', err);
+            return res.status(500).send('Error reading file: ' + err.message);
+        }
+
+        // Split the file content into lines and get the last non-empty line
+        const lines = data.trim().split('\n');
+        const latestData = lines[lines.length - 1];
+
+        res.status(200).send({ latestData });
+    });
 });
 
 // GET request to check API status
