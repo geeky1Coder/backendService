@@ -1,8 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const https = require('https');
 const http = require('http');
-const fs = require('fs');
 const cors = require('cors');
 const { appendToFile } = require('./utils/fileHandler');
 
@@ -10,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: true })); // Add this line
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // POST request to append data to a file
@@ -50,20 +48,9 @@ app.get('/status', (req, res) => {
     `);
 });
 
-// Try to load SSL certificates
-let server;
-try {
-    const sslOptions = {
-        key: fs.readFileSync('./example.com+5-key.pem'),
-        cert: fs.readFileSync('./example.com+5.pem'),
-    };
-    server = https.createServer(sslOptions, app);
-} catch (error) {
-    console.error('Failed to load SSL certificates, falling back to HTTP:', error.message);
-    server = http.createServer(app);
-}
-
 // Start the server
-server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server is running on port ${PORT}`);
+const server = http.createServer(app);
+
+server.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
